@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kapon | Block Blast</title>
+    <!-- Konfeti Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         /* --- SİTE GENELİ --- */
         body {
@@ -45,6 +47,7 @@
             background: transparent; color: #fff; text-decoration: none; font-weight: bold;
             border: 2px solid #333; padding: 8px 16px; border-radius: 6px; font-size: 0.9em;
             transition: all 0.2s;
+            text-transform: uppercase;
         }
         .back-btn:hover { border-color: #00f3ff; color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.3); }
 
@@ -66,7 +69,7 @@
         }
         .high-score span { color: #ff007f; text-shadow: 0 0 10px rgba(255,0,127,0.5); }
 
-        /* 8x8 Izgara (Grid) */
+        /* 8x8 Izgara */
         #board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -77,9 +80,11 @@
             border-radius: 8px;
             border: 2px solid #333;
             width: 90vw;
-            max-width: 380px;
-            aspect-ratio: 1 / 1;
+            max-width: 360px;
+            height: 90vw;
+            max-height: 360px;
             box-shadow: 0 0 30px rgba(0, 243, 255, 0.05);
+            position: relative;
         }
 
         .cell {
@@ -87,36 +92,83 @@
             border-radius: 4px;
             width: 100%;
             height: 100%;
-            transition: background-color 0.2s;
+            transition: background-color 0.1s, transform 0.1s;
+        }
+        .cell.filled {
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+        }
+        .cell.hover-valid {
+            background-color: rgba(0, 243, 255, 0.3) !important;
+            transform: scale(0.9);
+        }
+        .cell.hover-invalid {
+            background-color: rgba(255, 51, 102, 0.3) !important;
         }
 
-        /* Tepsi (Şekillerin Geleceği Yer) */
+        /* Şekil Tepsisi */
         #piece-tray {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 15px;
             margin-top: 30px;
             width: 100%;
             max-width: 400px;
-            height: 100px;
+            height: 120px;
         }
 
         .tray-slot {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             background-color: #111;
             border: 1px dashed #444;
             border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
+
+        /* Şekiller */
+        .piece {
+            display: grid;
+            gap: 2px;
+            cursor: grab;
+            pointer-events: auto;
+            touch-action: none;
+        }
+        .piece-block {
+            border-radius: 4px;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        }
+        .piece.dragging {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none; /* Sürüklerken alttaki hücreleri algılamak için */
+            transform: translate(-50%, -50%) scale(1.1); /* Parmağın tam altında dursa iyi olur */
+            opacity: 0.9;
+        }
+
+        /* Oyun Bitti Ekranı */
+        #game-over-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10000; text-align: center;
+        }
+        #go-title { font-size: 3em; margin: 0 0 10px 0; color: #ff3366; text-shadow: 0 0 20px #ff3366; }
+        .go-text { font-size: 1.5em; color: #fff; margin: 10px 0; }
+        #btn-restart {
+            margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold;
+            color: #00f3ff; background: transparent; border: 3px solid #00f3ff;
+            border-radius: 12px; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+        }
+        #btn-restart:active { transform: scale(0.95); background: #00f3ff; color: #000; }
 
         /* --- YORUM SİSTEMİ --- */
         .comments-section { width: 100%; max-width: 900px; margin: 40px auto; padding: 0 20px; box-sizing: border-box; }
         .comments-header { font-size: 1.5em; margin-bottom: 20px; font-weight: bold; }
         .comment-input-area { display: flex; gap: 15px; margin-bottom: 40px; }
-        .comment-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #00f3ff, #b026ff); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2em; flex-shrink: 0; }
+        .comment-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #00f3ff, #b026ff); display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 1.2em; flex-shrink: 0; color: #fff; }
         .comment-input-wrapper { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-end; }
         .comment-textarea { width: 100%; background: transparent; border: none; border-bottom: 2px solid #444; color: #fff; font-size: 1em; padding: 5px 0; resize: none; outline: none; transition: border-color 0.3s; font-family: inherit; }
         .comment-textarea:focus { border-bottom-color: #fff; }
@@ -140,7 +192,6 @@
 <body>
 
     <div id="game-layer">
-        
         <!-- GERİ DÖN MENÜSÜ -->
         <div class="back-nav">
             <a href="https://kapon53.github.io/" class="back-btn">◄ Ana Sayfaya Dön</a>
@@ -155,17 +206,21 @@
         </div>
 
         <!-- 8x8 OYUN ALANI -->
-        <div id="board">
-            <!-- Hücreler JS ile eklenecek -->
-        </div>
+        <div id="board"></div>
 
         <!-- ŞEKİL TEPSİSİ -->
         <div id="piece-tray">
+            <div class="tray-slot" id="slot-0"></div>
             <div class="tray-slot" id="slot-1"></div>
             <div class="tray-slot" id="slot-2"></div>
-            <div class="tray-slot" id="slot-3"></div>
         </div>
+    </div>
 
+    <!-- OYUN BİTTİ EKRANI -->
+    <div id="game-over-screen">
+        <h2 id="go-title">OYUN BİTTİ</h2>
+        <p class="go-text">Skorun: <span id="go-score-val" style="color:#00f3ff; font-weight:bold;">0</span></p>
+        <button id="btn-restart">Tekrar Oyna</button>
     </div>
 
     <!-- YORUM SİSTEMİ ALANI -->
@@ -182,18 +237,354 @@
     </div>
 
     <script>
-        // --- BLOCK BLAST GÖRSEL ARAYÜZ (IZGARA OLUŞTURMA) ---
-        const board = document.getElementById('board');
+        /* ========================================= */
+        /* --- BLOCK BLAST OYUN MOTORU & MANTIK --- */
+        /* ========================================= */
         
-        // 8x8'lik 64 hücreyi dinamik olarak oluştur
-        for(let i = 0; i < 64; i++) {
-            let cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.dataset.index = i;
-            board.appendChild(cell);
+        const boardEl = document.getElementById('board');
+        let grid = Array(8).fill().map(() => Array(8).fill(0));
+        let score = 0;
+        let highScore = localStorage.getItem('blockBlastHighScore') || 0;
+        document.getElementById('high-score').innerText = highScore;
+
+        // Tahtayı çiz
+        for(let r = 0; r < 8; r++) {
+            for(let c = 0; c < 8; c++) {
+                let cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.r = r;
+                cell.dataset.c = c;
+                boardEl.appendChild(cell);
+            }
         }
 
-        // --- YORUM SİSTEMİ JS ---
+        // Şekil Havuzu (Matris ve Renkler)
+        const SHAPES = [
+            { mat: [[1]], color: '#b026ff' }, // 1x1
+            { mat: [[1,1]], color: '#00f3ff' }, // 2x1 Yatay
+            { mat: [[1],[1]], color: '#00f3ff' }, // 1x2 Dikey
+            { mat: [[1,1,1]], color: '#ff3366' }, // 3x1 Yatay
+            { mat: [[1],[1],[1]], color: '#ff3366' }, // 1x3 Dikey
+            { mat: [[1,1,1,1]], color: '#00ff66' }, // 4x1
+            { mat: [[1],[1],[1],[1]], color: '#00ff66' }, // 1x4
+            { mat: [[1,1],[1,1]], color: '#ff8c00' }, // 2x2 Kare
+            { mat: [[1,1,1],[1,1,1],[1,1,1]], color: '#e6e600' }, // 3x3 Kare
+            { mat: [[1,0],[1,1]], color: '#0055ff' }, // Küçük L
+            { mat: [[1,1],[0,1]], color: '#0055ff' }, // Küçük L ters
+            { mat: [[1,0,0],[1,0,0],[1,1,1]], color: '#ff007f' }, // Büyük L
+            { mat: [[0,0,1],[0,0,1],[1,1,1]], color: '#ff007f' }  // Büyük L Ters
+        ];
+
+        let trayPieces = [null, null, null];
+        let draggingPiece = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let currentHoverCells = [];
+
+        function renderBoard() {
+            for(let r = 0; r < 8; r++) {
+                for(let c = 0; c < 8; c++) {
+                    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                    if(grid[r][c] !== 0) {
+                        cellEl.style.backgroundColor = grid[r][c];
+                        cellEl.classList.add('filled');
+                    } else {
+                        cellEl.style.backgroundColor = '#0c0c0e';
+                        cellEl.classList.remove('filled');
+                    }
+                }
+            }
+        }
+
+        function createPieceElement(shapeDef, slotIndex) {
+            const piece = document.createElement('div');
+            piece.classList.add('piece');
+            const rows = shapeDef.mat.length;
+            const cols = shapeDef.mat[0].length;
+            
+            piece.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            piece.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            // Hücre boyutlarını tepsiye göre ayarla (biraz küçük)
+            const blockSize = 20; 
+            piece.style.width = `${cols * blockSize}px`;
+            piece.style.height = `${rows * blockSize}px`;
+
+            for(let r = 0; r < rows; r++) {
+                for(let c = 0; c < cols; c++) {
+                    const block = document.createElement('div');
+                    if(shapeDef.mat[r][c] === 1) {
+                        block.classList.add('piece-block');
+                        block.style.backgroundColor = shapeDef.color;
+                    }
+                    piece.appendChild(block);
+                }
+            }
+
+            piece.dataset.slot = slotIndex;
+            
+            // Sürükleme Eventleri (Hem Fare Hem Dokunmatik)
+            piece.addEventListener('mousedown', startDrag);
+            piece.addEventListener('touchstart', startDrag, {passive: false});
+
+            return piece;
+        }
+
+        function fillTray() {
+            for(let i=0; i<3; i++) {
+                if(!trayPieces[i]) {
+                    const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                    trayPieces[i] = randomShape;
+                    const pieceEl = createPieceElement(randomShape, i);
+                    document.getElementById(`slot-${i}`).appendChild(pieceEl);
+                }
+            }
+            checkGameOver();
+        }
+
+        // --- SÜRÜKLE BIRAK MANTIĞI ---
+        function startDrag(e) {
+            e.preventDefault();
+            if(draggingPiece) return;
+            draggingPiece = this;
+            
+            const rect = draggingPiece.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Merkezden tutuyormuş gibi yap
+            dragOffsetX = rect.width / 2;
+            dragOffsetY = rect.height / 2;
+
+            draggingPiece.classList.add('dragging');
+            document.body.appendChild(draggingPiece); // Ekranın üstüne al
+            
+            moveDrag(e);
+
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('touchmove', moveDrag, {passive: false});
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function moveDrag(e) {
+            if(!draggingPiece) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Sürüklenen parçayı parmağın/farenin 40px üstünde göster ki altını görebilsin
+            draggingPiece.style.left = `${clientX}px`;
+            draggingPiece.style.top = `${clientY - 40}px`;
+
+            // Altındaki ızgara hücresini bul
+            clearHoverEffects();
+            
+            const pieceRect = draggingPiece.getBoundingClientRect();
+            // Parçanın sol üst köşesine denk gelen board hücresi
+            const elemUnder = document.elementFromPoint(pieceRect.left + 5, pieceRect.top + 5);
+            
+            if(elemUnder && elemUnder.classList.contains('cell')) {
+                const startR = parseInt(elemUnder.dataset.r);
+                const startC = parseInt(elemUnder.dataset.c);
+                const shapeIndex = draggingPiece.dataset.slot;
+                const shape = trayPieces[shapeIndex];
+
+                let canPlace = true;
+                let hoverCells = [];
+
+                for(let r = 0; r < shape.mat.length; r++) {
+                    for(let c = 0; c < shape.mat[0].length; c++) {
+                        if(shape.mat[r][c] === 1) {
+                            let boardR = startR + r;
+                            let boardC = startC + c;
+                            let cell = document.querySelector(`.cell[data-r="${boardR}"][data-c="${boardC}"]`);
+                            
+                            if(boardR >= 8 || boardC >= 8 || !cell || grid[boardR][boardC] !== 0) {
+                                canPlace = false;
+                            }
+                            if(cell) hoverCells.push(cell);
+                        }
+                    }
+                }
+
+                currentHoverCells = hoverCells;
+                hoverCells.forEach(cell => {
+                    cell.classList.add(canPlace ? 'hover-valid' : 'hover-invalid');
+                });
+            }
+        }
+
+        function stopDrag(e) {
+            if(!draggingPiece) return;
+            
+            document.removeEventListener('mousemove', moveDrag);
+            document.removeEventListener('touchmove', moveDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
+
+            const pieceRect = draggingPiece.getBoundingClientRect();
+            const elemUnder = document.elementFromPoint(pieceRect.left + 5, pieceRect.top + 5);
+            
+            let placed = false;
+            const shapeIndex = draggingPiece.dataset.slot;
+            const shape = trayPieces[shapeIndex];
+
+            if(elemUnder && elemUnder.classList.contains('cell')) {
+                const startR = parseInt(elemUnder.dataset.r);
+                const startC = parseInt(elemUnder.dataset.c);
+                
+                if(canPlaceShape(shape.mat, startR, startC)) {
+                    placeShape(shape, startR, startC);
+                    placed = true;
+                    trayPieces[shapeIndex] = null;
+                    draggingPiece.remove();
+                    
+                    // Puan ver
+                    score += shape.mat.flat().filter(v => v===1).length * 10;
+                    
+                    checkLines();
+                    updateScore();
+                    
+                    // Tepsi boşaldıysa doldur
+                    if(trayPieces.every(p => p === null)) {
+                        fillTray();
+                    } else {
+                        checkGameOver();
+                    }
+                }
+            }
+
+            if(!placed) {
+                // Yerleştirilemediyse tepsiye geri dön
+                draggingPiece.classList.remove('dragging');
+                draggingPiece.style.left = '';
+                draggingPiece.style.top = '';
+                document.getElementById(`slot-${shapeIndex}`).appendChild(draggingPiece);
+            }
+
+            draggingPiece = null;
+            clearHoverEffects();
+        }
+
+        function clearHoverEffects() {
+            currentHoverCells.forEach(cell => {
+                cell.classList.remove('hover-valid', 'hover-invalid');
+            });
+            currentHoverCells = [];
+        }
+
+        function canPlaceShape(mat, startR, startC) {
+            for(let r = 0; r < mat.length; r++) {
+                for(let c = 0; c < mat[0].length; c++) {
+                    if(mat[r][c] === 1) {
+                        let br = startR + r;
+                        let bc = startC + c;
+                        if(br < 0 || br >= 8 || bc < 0 || bc >= 8 || grid[br][bc] !== 0) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placeShape(shape, startR, startC) {
+            for(let r = 0; r < shape.mat.length; r++) {
+                for(let c = 0; c < shape.mat[0].length; c++) {
+                    if(shape.mat[r][c] === 1) {
+                        grid[startR + r][startC + c] = shape.color;
+                    }
+                }
+            }
+            renderBoard();
+        }
+
+        function checkLines() {
+            let rowsToClear = [];
+            let colsToClear = [];
+
+            // Satır kontrolü
+            for(let r = 0; r < 8; r++) {
+                if(grid[r].every(cell => cell !== 0)) rowsToClear.push(r);
+            }
+            // Sütun kontrolü
+            for(let c = 0; c < 8; c++) {
+                let colFull = true;
+                for(let r = 0; r < 8; r++) {
+                    if(grid[r][c] === 0) colFull = false;
+                }
+                if(colFull) colsToClear.push(c);
+            }
+
+            let linesCleared = rowsToClear.length + colsToClear.length;
+            
+            if(linesCleared > 0) {
+                rowsToClear.forEach(r => {
+                    for(let c=0; c<8; c++) grid[r][c] = 0;
+                });
+                colsToClear.forEach(c => {
+                    for(let r=0; r<8; r++) grid[r][c] = 0;
+                });
+
+                score += linesCleared * 100;
+                renderBoard();
+                
+                // Konfeti!
+                confetti({ particleCount: 50 * linesCleared, spread: 70, origin: { y: 0.6 } });
+            }
+        }
+
+        function checkGameOver() {
+            let canPlay = false;
+            for(let i=0; i<3; i++) {
+                if(trayPieces[i]) {
+                    const mat = trayPieces[i].mat;
+                    for(let r=0; r<8; r++) {
+                        for(let c=0; c<8; c++) {
+                            if(canPlaceShape(mat, r, c)) canPlay = true;
+                        }
+                    }
+                }
+            }
+
+            if(!canPlay) {
+                document.getElementById('game-over-screen').style.display = 'flex';
+                document.getElementById('go-score-val').innerText = score;
+                if(score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('blockBlastHighScore', highScore);
+                    document.getElementById('high-score').innerText = highScore;
+                    document.getElementById('go-title').innerText = "YENİ REKOR!";
+                }
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('current-score').innerText = score;
+        }
+
+        document.getElementById('btn-restart').onclick = () => {
+            document.getElementById('game-over-screen').style.display = 'none';
+            grid = Array(8).fill().map(() => Array(8).fill(0));
+            score = 0;
+            updateScore();
+            renderBoard();
+            document.getElementById('slot-0').innerHTML = '';
+            document.getElementById('slot-1').innerHTML = '';
+            document.getElementById('slot-2').innerHTML = '';
+            trayPieces = [null, null, null];
+            fillTray();
+        };
+
+        // Oyunu Başlat
+        fillTray();
+        renderBoard();
+
+
+        /* ========================================= */
+        /* --- YORUM SİSTEMİ JS --- */
+        /* ========================================= */
         let currentUser = localStorage.getItem("kapon_username") || "GizemliOyuncu";
         document.getElementById('nav-player-name').textContent = currentUser;
         document.getElementById('current-user-avatar').textContent = currentUser.charAt(0).toUpperCase();
