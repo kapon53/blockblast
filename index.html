@@ -81,10 +81,10 @@
         .tray-slot { width: 28%; aspect-ratio: 1/1; height: auto; display: flex; justify-content: center; align-items: center; position: relative; }
 
         /* Şekiller */
-        .piece { display: grid; gap: 3px; cursor: grab; pointer-events: auto; touch-action: none; animation: pieceIn 0.25s ease; transition: width 0.15s ease, height 0.15s ease; }
+        .piece { display: grid; gap: 3px; cursor: grab; pointer-events: auto; touch-action: none; animation: pieceIn 0.25s ease; transition: width 0.15s ease, height 0.15s ease, gap 0.15s ease; }
         @keyframes pieceIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         .piece-block { border-radius: 4px; box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.3), 0 2px 2px rgba(70,30,15,.4); }
-        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -100%); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); will-change: left, top, transform, width, height; }
+        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -110%); margin-top: -15px; filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); will-change: left, top, transform, width, height; }
 
         /* Lazer ve Yazı Efektleri */
         .laser-beam { position: absolute; background: #fff; box-shadow: 0 0 15px 5px #fff, 0 0 30px 15px #00f3ff; z-index: 300; pointer-events: none; border-radius: 8px; animation: laserFade 0.4s ease-out forwards; }
@@ -264,7 +264,7 @@
             piece.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
             piece.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
             
-            // Ekran yüksekliğine göre blok boyutunu dinamik ayarlar
+            // Tepside dururken küçük boyutta kalması için
             const isSmallScreen = window.innerHeight < 750;
             const blockSize = isSmallScreen ? 18 : 22; 
             
@@ -299,11 +299,13 @@
 
         function fillTray() {
             for(let i=0; i<3; i++) {
+                const slot = document.getElementById(`slot-${i}`);
                 if(!trayPieces[i]) {
                     const shape = randomShape();
                     trayPieces[i] = shape;
+                    slot.innerHTML = ''; // ÇOĞALMA BUG'INI ÇÖZEN KISIM! Eski kodu temizler.
                     const pieceEl = createPieceElement(shape, i);
-                    document.getElementById(`slot-${i}`).appendChild(pieceEl);
+                    slot.appendChild(pieceEl);
                 }
             }
             checkGameOver();
@@ -318,51 +320,34 @@
             localStorage.setItem('blockBlastState', JSON.stringify(state));
         }
 
-        function getCellFromPoint(x, y) {
-            const boardRect = boardEl.getBoundingClientRect();
-            if(x < boardRect.left || x > boardRect.right || y < boardRect.top || y > boardRect.bottom) return null;
-            const cell = document.elementFromPoint(x, y);
-            if(!cell || !cell.classList.contains('cell')) return null;
-            return { r: Number(cell.dataset.r), c: Number(cell.dataset.c) };
-        }
-
-        function getPlacementOrigin(x, y, shape) {
-            const touchedCell = getCellFromPoint(x, y);
-            if(!touchedCell) return null;
-            return {
-                r: touchedCell.r - Math.floor(shape.mat.length / 2),
-                c: touchedCell.c - Math.floor(shape.mat[0].length / 2)
-            };
-        }
-
         function startDrag(e) {
             if(draggingPiece || isGameOverTriggered) return;
             draggingPiece = this;
-            const rect = draggingPiece.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            dragOffsetX = rect.width / 2;
-            dragOffsetY = rect.height / 2;
             
-            // --- GÜNCELLEME: Sürükleme Başlayınca Parçayı Tahtanın Izgara Boyutuna Büyüt ---
-            const boardCell = document.querySelector('.cell'); // Tahtadaki ilk hücreyi referans al
+            // --- BLOĞUN TAHTA BOYUTUNA ORANTILI ŞEKİLDE BÜYÜMESİ (Biraz küçültülmüş - %92) ---
+            const boardCell = document.querySelector('#board .cell');
             if (boardCell) {
-                const cellWidth = boardCell.offsetWidth;
-                const cellHeight = boardCell.offsetHeight;
+                const cellW = boardCell.getBoundingClientRect().width;
+                const cellH = boardCell.getBoundingClientRect().height;
+                const targetCellW = cellW * 0.92; // Kullanıcının isteğine göre %92'ye küçültüldü
+                const targetCellH = cellH * 0.92;
                 
                 const shapeIndex = draggingPiece.dataset.slot;
                 const shape = trayPieces[shapeIndex];
                 const rows = shape.mat.length;
                 const cols = shape.mat[0].length;
                 
-                // Blokların tahtadaki hücre boyutlarına ulaşması için genişlik ve yüksekliği ayarlıyoruz
-                draggingPiece.style.width = `${cols * (cellWidth + 2)}px`; // 2px gap değeri
-                draggingPiece.style.height = `${rows * (cellHeight + 2)}px`;
+                draggingPiece.style.width = `${cols * targetCellW + (cols - 1) * 2}px`;
+                draggingPiece.style.height = `${rows * targetCellH + (rows - 1) * 2}px`;
+                draggingPiece.style.gap = '2px';
             }
 
             draggingPiece.classList.add('dragging');
             currentPlacement = null;
             document.body.appendChild(draggingPiece); 
+            
             moveDrag(e);
             document.addEventListener('mousemove', moveDrag);
             document.addEventListener('touchmove', moveDrag, {passive: false});
@@ -375,53 +360,68 @@
             e.preventDefault();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
             draggingPiece.style.left = `${clientX}px`;
-            // Parça boyutlandığı için, farenin (veya parmağın) konumu parçanın altından ayarlandı
-            draggingPiece.style.top = `${clientY}px`; 
+            draggingPiece.style.top = `${clientY}px`;
 
             clearHoverEffects();
+            
+            // --- MIKNATIS GİBİ GEOMETRİK ALGILAMA (HITBOX SORUNU ÇÖZÜMÜ) ---
+            const pieceRect = draggingPiece.getBoundingClientRect();
+            const boardRect = boardEl.getBoundingClientRect();
+            const boardCell = document.querySelector('#board .cell');
+            const cellW = boardCell.getBoundingClientRect().width;
+            const cellH = boardCell.getBoundingClientRect().height;
+            
+            // Tahtanın iç padding'ini ve border'ını hesaba katarak bloğun tahtaya göre konumunu buluyoruz
+            const boardInnerLeft = boardRect.left + 7;
+            const boardInnerTop = boardRect.top + 7;
+            const relX = pieceRect.left - boardInnerLeft;
+            const relY = pieceRect.top - boardInnerTop;
+
+            // Bloğun sol üst köşesinin hangi ızgaraya denk geldiğini net bir şekilde hesaplar
+            const startC = Math.round(relX / (cellW + 2)); 
+            const startR = Math.round(relY / (cellH + 2));
+
             const shapeIndex = draggingPiece.dataset.slot;
             const shape = trayPieces[shapeIndex];
-            const pieceRect = draggingPiece.getBoundingClientRect();
-            const targetCell = getPlacementOrigin(
-                pieceRect.left + pieceRect.width / 2,
-                pieceRect.top + pieceRect.height / 2,
-                shape
-            );
-            
-            if(targetCell) {
-                const startR = targetCell.r;
-                const startC = targetCell.c;
 
-                let canPlace = true;
-                let hoverCells = [];
+            let canPlace = true;
+            let hoverCells = [];
 
-                for(let r = 0; r < shape.mat.length; r++) {
-                    for(let c = 0; c < shape.mat[0].length; c++) {
-                        if(shape.mat[r][c] === 1) {
-                            let boardR = startR + r;
-                            let boardC = startC + c;
-                            let cell = boardR >= 0 && boardR < 8 && boardC >= 0 && boardC < 8
-                                ? cellMap[boardR][boardC] : null;
-                            if(boardR >= 8 || boardC >= 8 || !cell || grid[boardR][boardC] !== 0) {
-                                canPlace = false;
-                            }
-                            if(cell) hoverCells.push(cell);
+            // Eğer blok tamamen tahtanın dışındaysa hiç hesaplama
+            if (startR < -shape.mat.length || startR > 8 || startC < -shape.mat[0].length || startC > 8) {
+                currentPlacement = null;
+                return;
+            }
+
+            for(let r = 0; r < shape.mat.length; r++) {
+                for(let c = 0; c < shape.mat[0].length; c++) {
+                    if(shape.mat[r][c] === 1) {
+                        let boardR = startR + r;
+                        let boardC = startC + c;
+                        let cell = boardR >= 0 && boardR < 8 && boardC >= 0 && boardC < 8
+                            ? cellMap[boardR][boardC] : null;
+                        
+                        if(boardR >= 8 || boardC >= 8 || boardR < 0 || boardC < 0 || !cell || grid[boardR][boardC] !== 0) {
+                            canPlace = false;
                         }
+                        if(cell) hoverCells.push(cell);
                     }
                 }
-
-                currentHoverCells = hoverCells;
-                currentPlacement = canPlace ? { r: startR, c: startC } : null;
-                hoverCells.forEach(cell => {
-                    if(canPlace) {
-                        cell.classList.add('ghost-valid');
-                        cell.style.background = hexToRgba(shape.color, 0.5);
-                    } else {
-                        cell.classList.add('ghost-invalid');
-                    }
-                });
             }
+
+            currentHoverCells = hoverCells;
+            currentPlacement = canPlace ? { r: startR, c: startC } : null;
+            
+            hoverCells.forEach(cell => {
+                if(canPlace) {
+                    cell.classList.add('ghost-valid');
+                    cell.style.background = hexToRgba(shape.color, 0.5);
+                } else {
+                    cell.classList.add('ghost-invalid');
+                }
+            });
         }
 
         function stopDrag(e) {
@@ -431,22 +431,13 @@
             document.removeEventListener('mouseup', stopDrag);
             document.removeEventListener('touchend', stopDrag);
 
-            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-            
             let placed = false;
             const shapeIndex = draggingPiece.dataset.slot;
             const shape = trayPieces[shapeIndex];
-            const pieceRect = draggingPiece.getBoundingClientRect();
-            const targetCell = currentPlacement || getPlacementOrigin(
-                pieceRect.left + pieceRect.width / 2,
-                pieceRect.top + pieceRect.height / 2,
-                shape
-            );
 
-            if(targetCell) {
-                const startR = targetCell.r;
-                const startC = targetCell.c;
+            if(currentPlacement) {
+                const startR = currentPlacement.r;
+                const startC = currentPlacement.c;
                 
                 if(canPlaceShape(shape.mat, startR, startC)) {
                     placeShape(shape, startR, startC);
@@ -471,15 +462,17 @@
                 draggingPiece.style.left = '';
                 draggingPiece.style.top = '';
                 
-                // Geri tepsiye koyarken genişliği tekrar eski haline getiriyoruz
+                // Geri tepsiye koyarken genişliği eski minik haline döndür
                 const isSmallScreen = window.innerHeight < 750;
                 const blockSize = isSmallScreen ? 18 : 22; 
                 draggingPiece.style.width = `${shape.mat[0].length * blockSize}px`;
                 draggingPiece.style.height = `${shape.mat.length * blockSize}px`;
+                draggingPiece.style.gap = '3px';
 
                 document.getElementById(`slot-${shapeIndex}`).appendChild(draggingPiece);
             }
             draggingPiece = null;
+            currentPlacement = null;
             clearHoverEffects();
         }
 
@@ -682,6 +675,11 @@
             grid = Array(8).fill().map(() => Array(8).fill(0));
             score = 0; combo = 0;
             updateScore(); renderBoard();
+            
+            // Tepsileri tamamen temizle (Oyun başlarken bug olmasını engeller)
+            document.getElementById('slot-0').innerHTML = '';
+            document.getElementById('slot-1').innerHTML = '';
+            document.getElementById('slot-2').innerHTML = '';
             trayPieces = [null, null, null];
             fillTray();
             saveGameState(); 
