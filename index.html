@@ -1,5 +1,3 @@
-
-Index · HTML
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -17,7 +15,7 @@ Index · HTML
             overflow-x: hidden;
             color: #fff;
         }
- 
+
         /* --- OYUN ALANI KABUĞU --- */
         #game-layer {
             position: relative;
@@ -32,7 +30,7 @@ Index · HTML
             -webkit-user-select: none;
             touch-action: none;
         }
- 
+
         /* --- GERİ DÖN BUTONU --- */
         .back-nav {
             width: 100%;
@@ -52,13 +50,13 @@ Index · HTML
             text-transform: uppercase;
         }
         .back-btn:hover { border-color: #00f3ff; color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.3); }
- 
+
         /* --- BLOCK BLAST ARAYÜZÜ (Orijinal Stil) --- */
         .game-wrap {
             display: flex; flex-direction: column; align-items: center;
             padding: 4px 16px 0; width: 100%; box-sizing: border-box;
         }
- 
+
         h1.game-title {
             margin: 6px 0 0; font-size: 2.5em; font-weight: 900; letter-spacing: 1px;
             text-transform: uppercase; font-style: italic; text-align: center;
@@ -70,7 +68,7 @@ Index · HTML
             color: #9fb3ff; letter-spacing: 4px; font-size: 0.75em; font-weight: 700;
             margin: -4px 0 16px; text-transform: uppercase;
         }
- 
+
         /* Mavi Oyun Kartı */
         .game-card {
             background: radial-gradient(circle at 50% 0%, #4d67c9 0%, #33459c 55%, #232f75 100%);
@@ -78,7 +76,7 @@ Index · HTML
             box-shadow: 0 20px 50px rgba(0,0,0,0.55), inset 0 2px 0 rgba(255,255,255,0.08);
             box-sizing: border-box; position: relative;
         }
- 
+
         .score-board {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 6px 14px;
@@ -92,7 +90,7 @@ Index · HTML
         }
         #current-score { font-size: 1.4em; font-weight: 900; color: #ffd54f; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
         #high-score { font-size: 1.4em; font-weight: 900; color: #ff6ec7; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
- 
+
         /* 8x8 Izgara */
         #board {
             display: grid;
@@ -108,7 +106,7 @@ Index · HTML
             position: relative;
             overflow: visible;
         }
- 
+
         .cell {
             background: rgba(255,255,255,0.05);
             border-radius: 6px;
@@ -133,7 +131,7 @@ Index · HTML
             25% { transform: translateX(-3px); }
             75% { transform: translateX(3px); }
         }
- 
+
         /* Şekil Tepsisi */
         #piece-tray {
             display: flex;
@@ -143,7 +141,7 @@ Index · HTML
             min-height: 100px;
             margin-top: 18px;
         }
- 
+
         .tray-slot {
             width: 100px;
             height: 100px;
@@ -152,7 +150,7 @@ Index · HTML
             align-items: center;
             position: relative;
         }
- 
+
         /* Şekiller */
         .piece {
             display: grid;
@@ -173,12 +171,12 @@ Index · HTML
         .piece.dragging {
             position: fixed;
             z-index: 9999;
-            pointer-events: none; /* Sürüklerken alttaki hücreleri algılamak için */
-            transform: translate(-50%, -50%) scale(1.15); /* Parmağın üstünde belirginleşsin */
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(1.15); 
             filter: drop-shadow(0 12px 16px rgba(0,0,0,.5));
         }
- 
-        /* Uçan Skor & Kombo Yazısı */
+
+        /* --- ANİMASYONLU YAZILAR (EKLENDİ) --- */
         .score-popup {
             position: absolute; left: 50%; top: 42%;
             transform: translate(-50%, -50%);
@@ -190,9 +188,18 @@ Index · HTML
         }
         .combo-popup {
             position: absolute; left: 50%; top: 27%; transform: translate(-50%, -50%);
-            font-size: 1em; font-weight: 800; letter-spacing: 2px;
+            font-size: 1.1em; font-weight: 800; letter-spacing: 2px;
             color: #ffd54f; text-shadow: 0 2px 0 rgba(0,0,0,.4);
             pointer-events: none; z-index: 500; animation: scorePop 1s ease forwards;
+            white-space: nowrap;
+        }
+        .word-popup {
+            position: absolute; left: 50%; top: 65%;
+            transform: translate(-50%, -50%);
+            font-size: 2.6em; font-weight: 900; letter-spacing: 1px;
+            color: #fff; text-transform: uppercase; font-style: italic;
+            pointer-events: none; z-index: 600;
+            animation: wordPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             white-space: nowrap;
         }
         @keyframes scorePop {
@@ -201,7 +208,13 @@ Index · HTML
             30% { transform: translate(-50%, -60%) scale(1); }
             100% { opacity: 0; transform: translate(-50%, -140%) scale(1); }
         }
- 
+        @keyframes wordPop {
+            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5) rotate(-5deg); }
+            20% { opacity: 1; transform: translate(-50%, 0px) scale(1.1) rotate(3deg); }
+            80% { opacity: 1; transform: translate(-50%, -15px) scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
+        }
+
         /* Parçacık Patlaması */
         .particle {
             position: absolute; border-radius: 3px; pointer-events: none; z-index: 400;
@@ -211,7 +224,7 @@ Index · HTML
             0% { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
             100% { opacity: 0; transform: translate(var(--px), var(--py)) rotate(180deg) scale(.4); }
         }
- 
+
         /* Oyun Bitti Ekranı */
         #game-over-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -235,7 +248,7 @@ Index · HTML
             transition: transform .1s, box-shadow .1s;
         }
         #btn-restart:active { transform: translateY(4px); box-shadow: 0 2px 0 #c67c00; }
- 
+
         /* --- YORUM SİSTEMİ --- */
         .comments-section { width: 100%; max-width: 900px; margin: 40px auto; padding: 0 20px; box-sizing: border-box; }
         .comments-header { font-size: 1.5em; margin-bottom: 20px; font-weight: bold; }
@@ -262,18 +275,18 @@ Index · HTML
     </style>
 </head>
 <body>
- 
+
     <div id="game-layer">
         <!-- GERİ DÖN MENÜSÜ -->
         <div class="back-nav">
             <a href="https://kapon53.github.io/" class="back-btn">◄ Ana Sayfaya Dön</a>
             <div style="color:#aaa; font-size: 0.9em;">Oynayan: <span id="nav-player-name" style="color:#fff; font-weight:bold;">Oyuncu</span></div>
         </div>
- 
+
         <div class="game-wrap">
             <h1 class="game-title">Block Blast</h1>
             <div class="game-subtitle">Kapon Edition</div>
- 
+
             <div class="game-card">
                 <div class="score-board">
                     <div class="score-pill">
@@ -285,10 +298,10 @@ Index · HTML
                         <span class="score-text"><span class="score-label">Rekor</span><span id="high-score">0</span></span>
                     </div>
                 </div>
- 
+
                 <!-- 8x8 OYUN ALANI -->
                 <div id="board"></div>
- 
+
                 <!-- ŞEKİL TEPSİSİ -->
                 <div id="piece-tray">
                     <div class="tray-slot" id="slot-0"></div>
@@ -298,7 +311,7 @@ Index · HTML
             </div>
         </div>
     </div>
- 
+
     <!-- OYUN BİTTİ EKRANI -->
     <div id="game-over-screen">
         <div class="go-card">
@@ -308,7 +321,7 @@ Index · HTML
             <button id="btn-restart">Tekrar Oyna</button>
         </div>
     </div>
- 
+
     <!-- YORUM SİSTEMİ ALANI -->
     <div class="comments-section">
         <div class="comments-header" id="comment-count">0 Yorum</div>
@@ -321,7 +334,7 @@ Index · HTML
         </div>
         <div class="comment-list" id="comment-list"></div>
     </div>
- 
+
     <script>
         /* ========================================= */
         /* --- BLOCK BLAST OYUN MOTORU & MANTIK --- */
@@ -330,9 +343,10 @@ Index · HTML
         const boardEl = document.getElementById('board');
         let grid = Array(8).fill().map(() => Array(8).fill(0));
         let score = 0;
+        let combo = 0;
         let highScore = localStorage.getItem('blockBlastHighScore') || 0;
         document.getElementById('high-score').innerText = highScore;
- 
+
         // Tahtayı çiz
         for(let r = 0; r < 8; r++) {
             for(let c = 0; c < 8; c++) {
@@ -343,8 +357,8 @@ Index · HTML
                 boardEl.appendChild(cell);
             }
         }
- 
-        // Şekil Matrisleri (renkler parçaya rastgele atanır - orijinal gibi)
+
+        // Şekil Matrisleri (renkler parçaya rastgele atanır)
         const SHAPE_MATS = [
             [[1]], // 1x1
             [[1,1]], [[1],[1]], // 2'li
@@ -357,14 +371,14 @@ Index · HTML
             [[1,1,1],[1,0,0],[1,0,0]], [[1,1,1],[0,0,1],[0,0,1]]
         ];
         const COLORS = ['#ffca28', '#ff6b6b', '#42a5f5', '#ff9f43', '#66bb6a', '#ab47bc'];
- 
+
         function randomShape() {
             const mat = SHAPE_MATS[Math.floor(Math.random() * SHAPE_MATS.length)];
             const color = COLORS[Math.floor(Math.random() * COLORS.length)];
             return { mat, color };
         }
- 
-        // --- Renk yardımcıları (parlak/3D blok görünümü için) ---
+
+        // --- Renk yardımcıları ---
         function shadeColor(hex, percent) {
             let f = parseInt(hex.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent;
             let R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
@@ -377,8 +391,8 @@ Index · HTML
         function gradientFor(color) {
             return `linear-gradient(135deg, ${shadeColor(color, 0.35)}, ${color} 55%, ${shadeColor(color, -0.25)})`;
         }
- 
-        // --- Basit sentezlenmiş ses efektleri ---
+
+        // --- Ses Efektleri ---
         let audioCtx;
         function playSound(type) {
             try {
@@ -398,14 +412,13 @@ Index · HTML
                 o.start(); o.stop(audioCtx.currentTime + dur);
             } catch(e) {}
         }
- 
+
         let trayPieces = [null, null, null];
         let draggingPiece = null;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
         let currentHoverCells = [];
-        let combo = 0;
- 
+
         function renderBoard() {
             for(let r = 0; r < 8; r++) {
                 for(let c = 0; c < 8; c++) {
@@ -420,7 +433,7 @@ Index · HTML
                 }
             }
         }
- 
+
         function createPieceElement(shapeDef, slotIndex) {
             const piece = document.createElement('div');
             piece.classList.add('piece');
@@ -430,11 +443,10 @@ Index · HTML
             piece.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
             piece.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
             
-            // Hücre boyutlarını tepsiye göre ayarla (biraz küçük)
             const blockSize = 24; 
             piece.style.width = `${cols * blockSize}px`;
             piece.style.height = `${rows * blockSize}px`;
- 
+
             for(let r = 0; r < rows; r++) {
                 for(let c = 0; c < cols; c++) {
                     const block = document.createElement('div');
@@ -445,16 +457,14 @@ Index · HTML
                     piece.appendChild(block);
                 }
             }
- 
+
             piece.dataset.slot = slotIndex;
-            
-            // Sürükleme Eventleri (Hem Fare Hem Dokunmatik)
             piece.addEventListener('mousedown', startDrag);
             piece.addEventListener('touchstart', startDrag, {passive: false});
- 
+
             return piece;
         }
- 
+
         function fillTray() {
             for(let i=0; i<3; i++) {
                 if(!trayPieces[i]) {
@@ -466,10 +476,7 @@ Index · HTML
             }
             checkGameOver();
         }
- 
-        // Ekran koordinatından (x,y) tahtadaki satır/sütunu matematiksel olarak bul.
-        // elementFromPoint yerine bunu kullanıyoruz çünkü sürüklenen parça
-        // (yüksek z-index + transform ile) altındaki hücreleri gizleyebiliyor.
+
         function getCellFromPoint(x, y) {
             const boardRect = boardEl.getBoundingClientRect();
             const style = getComputedStyle(boardEl);
@@ -488,8 +495,7 @@ Index · HTML
             if(r < 0 || r > 7 || c < 0 || c > 7) return null;
             return { r, c };
         }
- 
-        // --- SÜRÜKLE BIRAK MANTIĞI ---
+
         function startDrag(e) {
             e.preventDefault();
             if(draggingPiece) return;
@@ -499,36 +505,32 @@ Index · HTML
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // Merkezden tutuyormuş gibi yap
             dragOffsetX = rect.width / 2;
             dragOffsetY = rect.height / 2;
- 
+
             draggingPiece.classList.add('dragging');
-            document.body.appendChild(draggingPiece); // Ekranın üstüne al
+            document.body.appendChild(draggingPiece); 
             
             moveDrag(e);
- 
+
             document.addEventListener('mousemove', moveDrag);
             document.addEventListener('touchmove', moveDrag, {passive: false});
             document.addEventListener('mouseup', stopDrag);
             document.addEventListener('touchend', stopDrag);
         }
- 
+
         function moveDrag(e) {
             if(!draggingPiece) return;
             e.preventDefault();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // Sürüklenen parçayı parmağın/farenin üstünde göster ki altını görebilsin
             draggingPiece.style.left = `${clientX}px`;
             draggingPiece.style.top = `${clientY - 55}px`;
- 
-            // Altındaki ızgara hücresini bul
+
             clearHoverEffects();
             
             const pieceRect = draggingPiece.getBoundingClientRect();
-            // Parçanın sol üst köşesine denk gelen board hücresi
             const targetCell = getCellFromPoint(pieceRect.left + 5, pieceRect.top + 5);
             
             if(targetCell) {
@@ -536,10 +538,10 @@ Index · HTML
                 const startC = targetCell.c;
                 const shapeIndex = draggingPiece.dataset.slot;
                 const shape = trayPieces[shapeIndex];
- 
+
                 let canPlace = true;
                 let hoverCells = [];
- 
+
                 for(let r = 0; r < shape.mat.length; r++) {
                     for(let c = 0; c < shape.mat[0].length; c++) {
                         if(shape.mat[r][c] === 1) {
@@ -554,7 +556,7 @@ Index · HTML
                         }
                     }
                 }
- 
+
                 currentHoverCells = hoverCells;
                 hoverCells.forEach(cell => {
                     if(canPlace) {
@@ -566,7 +568,7 @@ Index · HTML
                 });
             }
         }
- 
+
         function stopDrag(e) {
             if(!draggingPiece) return;
             
@@ -574,14 +576,14 @@ Index · HTML
             document.removeEventListener('touchmove', moveDrag);
             document.removeEventListener('mouseup', stopDrag);
             document.removeEventListener('touchend', stopDrag);
- 
+
             const pieceRect = draggingPiece.getBoundingClientRect();
             const targetCell = getCellFromPoint(pieceRect.left + 5, pieceRect.top + 5);
             
             let placed = false;
             const shapeIndex = draggingPiece.dataset.slot;
             const shape = trayPieces[shapeIndex];
- 
+
             if(targetCell) {
                 const startR = targetCell.r;
                 const startC = targetCell.c;
@@ -592,13 +594,11 @@ Index · HTML
                     trayPieces[shapeIndex] = null;
                     draggingPiece.remove();
                     
-                    // Puan ver
                     score += shape.mat.flat().filter(v => v===1).length * 10;
                     
                     checkLines();
                     updateScore();
                     
-                    // Tepsi boşaldıysa doldur
                     if(trayPieces.every(p => p === null)) {
                         fillTray();
                     } else {
@@ -606,19 +606,18 @@ Index · HTML
                     }
                 }
             }
- 
+
             if(!placed) {
-                // Yerleştirilemediyse tepsiye geri dön
                 draggingPiece.classList.remove('dragging');
                 draggingPiece.style.left = '';
                 draggingPiece.style.top = '';
                 document.getElementById(`slot-${shapeIndex}`).appendChild(draggingPiece);
             }
- 
+
             draggingPiece = null;
             clearHoverEffects();
         }
- 
+
         function clearHoverEffects() {
             currentHoverCells.forEach(cell => {
                 cell.classList.remove('ghost-valid', 'ghost-invalid');
@@ -627,7 +626,7 @@ Index · HTML
             });
             currentHoverCells = [];
         }
- 
+
         function canPlaceShape(mat, startR, startC) {
             for(let r = 0; r < mat.length; r++) {
                 for(let c = 0; c < mat[0].length; c++) {
@@ -642,7 +641,7 @@ Index · HTML
             }
             return true;
         }
- 
+
         function placeShape(shape, startR, startC) {
             const placedCells = [];
             for(let r = 0; r < shape.mat.length; r++) {
@@ -661,7 +660,7 @@ Index · HTML
                 setTimeout(() => cellEl.classList.remove('pop'), 250);
             });
         }
- 
+
         function spawnParticles(cellEl, color) {
             if(!cellEl) return;
             const boardEl2 = document.getElementById('board');
@@ -686,7 +685,7 @@ Index · HTML
                 setTimeout(() => p.remove(), 600);
             }
         }
- 
+
         function showScorePopup(points, comboVal) {
             const boardEl2 = document.getElementById('board');
             const el = document.createElement('div');
@@ -702,16 +701,26 @@ Index · HTML
                 setTimeout(() => c.remove(), 1000);
             }
         }
- 
+
+        // YENİ: Kelime animasyon fonksiyonu
+        function showWordPopup(text, color) {
+            const boardEl2 = document.getElementById('board');
+            const el = document.createElement('div');
+            el.className = 'word-popup';
+            el.textContent = text;
+            el.style.color = color;
+            el.style.textShadow = `0 3px 0 rgba(0,0,0,.4), 0 0 25px ${color}`;
+            boardEl2.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
         function checkLines() {
             let rowsToClear = [];
             let colsToClear = [];
- 
-            // Satır kontrolü
+
             for(let r = 0; r < 8; r++) {
                 if(grid[r].every(cell => cell !== 0)) rowsToClear.push(r);
             }
-            // Sütun kontrolü
             for(let c = 0; c < 8; c++) {
                 let colFull = true;
                 for(let r = 0; r < 8; r++) {
@@ -719,15 +728,14 @@ Index · HTML
                 }
                 if(colFull) colsToClear.push(c);
             }
- 
+
             let linesCleared = rowsToClear.length + colsToClear.length;
             
             if(linesCleared > 0) {
-                // Temizlenecek hücrelerden parçacık patlat, sonra sıfırla
                 const cellsToClear = new Set();
                 rowsToClear.forEach(r => { for(let c=0; c<8; c++) cellsToClear.add(r + '_' + c); });
                 colsToClear.forEach(c => { for(let r=0; r<8; r++) cellsToClear.add(r + '_' + c); });
- 
+
                 cellsToClear.forEach(key => {
                     const [r, c] = key.split('_').map(Number);
                     const color = grid[r][c];
@@ -735,25 +743,34 @@ Index · HTML
                     spawnParticles(cellEl, color);
                     grid[r][c] = 0;
                 });
- 
+
                 combo++;
                 const basePoints = linesCleared * 100;
                 const comboBonus = combo > 1 ? (combo - 1) * 50 : 0;
                 const gained = basePoints + comboBonus;
                 score += gained;
+                
                 renderBoard();
                 showScorePopup(gained, combo);
                 playSound(combo > 1 ? 'combo' : 'clear');
- 
-                // Büyük temizliklerde ekstra konfeti
+
+                // YENİ: Ekranda beliren Good/Great/Perfect yazıları
+                if (linesCleared === 2) {
+                    setTimeout(() => showWordPopup('GOOD!', '#00ff66'), 150);
+                } else if (linesCleared === 3) {
+                    setTimeout(() => showWordPopup('GREAT!', '#00f3ff'), 150);
+                } else if (linesCleared >= 4) {
+                    setTimeout(() => showWordPopup('PERFECT!', '#ff3366'), 150);
+                }
+
                 if(linesCleared >= 2) {
                     confetti({ particleCount: 40 * linesCleared, spread: 70, origin: { y: 0.4 } });
                 }
             } else {
-                combo = 0;
+                combo = 0; // Hiçbir şey patlatılamadıysa kombo sıfırlanır
             }
         }
- 
+
         function checkGameOver() {
             let canPlay = false;
             for(let i=0; i<3; i++) {
@@ -766,7 +783,7 @@ Index · HTML
                     }
                 }
             }
- 
+
             if(!canPlay) {
                 playSound('gameover');
                 document.getElementById('game-over-screen').style.display = 'flex';
@@ -781,11 +798,11 @@ Index · HTML
                 document.getElementById('go-best-val').innerText = highScore;
             }
         }
- 
+
         function updateScore() {
             document.getElementById('current-score').innerText = score;
         }
- 
+
         document.getElementById('btn-restart').onclick = () => {
             document.getElementById('game-over-screen').style.display = 'none';
             grid = Array(8).fill().map(() => Array(8).fill(0));
@@ -799,21 +816,21 @@ Index · HTML
             trayPieces = [null, null, null];
             fillTray();
         };
- 
+
         // Oyunu Başlat
         fillTray();
         renderBoard();
- 
- 
+
+
         /* ========================================= */
         /* --- YORUM SİSTEMİ JS --- */
         /* ========================================= */
         let currentUser = localStorage.getItem("kapon_username") || "GizemliOyuncu";
         document.getElementById('nav-player-name').textContent = currentUser;
         document.getElementById('current-user-avatar').textContent = currentUser.charAt(0).toUpperCase();
- 
+
         let commentsData = [];
- 
+
         window.renderComments = () => {
             const list = document.getElementById('comment-list'); list.innerHTML = ""; document.getElementById('comment-count').textContent = `${commentsData.length} Yorum`;
             commentsData.forEach(comment => {
@@ -837,12 +854,12 @@ Index · HTML
                 list.innerHTML += html;
             });
         };
- 
+
         window.postMainComment = () => { const input = document.getElementById('main-comment-input'); const text = input.value.trim(); if(text === "") return; commentsData.unshift({ id: Date.now(), author: currentUser, text: text, date: "Az önce", likes: 0, replies: [] }); input.value = ""; input.style.height = "auto"; renderComments(); };
         window.toggleReplyBox = (id) => { const box = document.getElementById(`reply-box-${id}`); box.style.display = box.style.display === "block" ? "none" : "block"; };
         window.postReply = (commentId) => { const input = document.getElementById(`reply-input-${commentId}`); const text = input.value.trim(); if(text === "") return; const comment = commentsData.find(c => c.id === commentId); if(comment) { comment.replies.push({ id: Date.now(), author: currentUser, text: text, date: "Az önce" }); renderComments(); } };
         window.toggleBtnVal = (btn) => { let span = btn.querySelector('span'); let val = parseInt(span.textContent); if(btn.style.color === "rgb(0, 243, 255)") { btn.style.color = "#aaa"; span.textContent = val - 1; } else { btn.style.color = "#00f3ff"; span.textContent = val + 1; } };
- 
+
         renderComments();
     </script>
 </body>
