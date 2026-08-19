@@ -19,10 +19,11 @@
         .back-btn:hover { border-color: #00f3ff; color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.3); }
 
         /* --- BLOCK BLAST ARAYÜZÜ --- */
-        .game-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 16px 0; width: 100%; box-sizing: border-box; }
+        .game-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 16px 0; width: 100%; box-sizing: border-box; position: relative; }
         h1.game-title { margin: 6px 0 0; font-size: 2.5em; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-style: italic; text-align: center; background: linear-gradient(180deg, #fff59d 0%, #ffb300 45%, #ff7043 55%, #ff3d68 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.4)); }
         .game-subtitle { color: #9fb3ff; letter-spacing: 4px; font-size: 0.75em; font-weight: 700; margin: -4px 0 16px; text-transform: uppercase; }
         .game-card { background: radial-gradient(circle at 50% 0%, #4d67c9 0%, #33459c 55%, #232f75 100%); border-radius: 28px; padding: 18px 16px 22px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.55), inset 0 2px 0 rgba(255,255,255,0.08); box-sizing: border-box; position: relative; }
+        
         .score-board { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 14px; }
         .score-pill { display: flex; align-items: center; gap: 8px; }
         .score-pill .icon { font-size: 1.6em; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
@@ -51,12 +52,28 @@
         .piece-block { border-radius: 6px; box-shadow: inset 0 3px 0 rgba(255,255,255,.4), inset 0 -4px 0 rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.35); }
         .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); }
 
-        /* ANİMASYONLU YAZILAR (EKLENDİ) */
+        /* --- YENİ EKLENEN EFEKTLER (LAZER, İKONLAR, YAZILAR) --- */
+        
+        /* 1. Lazer Efekti */
+        .laser-beam { position: absolute; background: #fff; box-shadow: 0 0 15px 5px #fff, 0 0 30px 15px #00f3ff; z-index: 300; pointer-events: none; border-radius: 8px; animation: laserFade 0.4s ease-out forwards; }
+        @keyframes laserFade { 0% { opacity: 1; transform: scale(1.05); filter: brightness(1.5); } 100% { opacity: 0; transform: scale(1); filter: brightness(1); } }
+        
+        /* 2. Uçan İkonlar (+1) */
+        .float-icon { position: absolute; font-size: 1.4em; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.7); z-index: 450; pointer-events: none; animation: floatUpIcon 0.9s ease-out forwards; }
+        @keyframes floatUpIcon { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -100%) scale(1); } }
+
+        /* 3. Dev Kombo ve Puan Yazıları */
         .score-popup { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 2.2em; font-weight: 900; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.4), 0 0 18px rgba(255,210,80,.9); pointer-events: none; z-index: 500; animation: scorePop 1s ease forwards; white-space: nowrap; }
-        .combo-popup { position: absolute; left: 50%; top: 27%; transform: translate(-50%, -50%); font-size: 1em; font-weight: 800; letter-spacing: 2px; color: #ffd54f; text-shadow: 0 2px 0 rgba(0,0,0,.4); pointer-events: none; z-index: 500; animation: scorePop 1s ease forwards; white-space: nowrap; }
-        .word-popup { position: absolute; left: 50%; top: 65%; transform: translate(-50%, -50%); font-size: 2.6em; font-weight: 900; letter-spacing: 1px; color: #fff; text-transform: uppercase; font-style: italic; pointer-events: none; z-index: 600; animation: wordPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; }
         @keyframes scorePop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 15% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); } 30% { transform: translate(-50%, -60%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -140%) scale(1); } }
-        @keyframes wordPop { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5) rotate(-5deg); } 20% { opacity: 1; transform: translate(-50%, 0px) scale(1.1) rotate(3deg); } 80% { opacity: 1; transform: translate(-50%, -15px) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); } }
+        
+        .combo-popup { position: absolute; left: 50%; top: 25%; transform: translate(-50%, -50%); font-size: 2.8em; font-weight: 900; letter-spacing: 2px; color: #ffd54f; text-shadow: 0 4px 0 rgba(0,0,0,.6), 0 0 25px rgba(255,210,80,0.8); pointer-events: none; z-index: 600; animation: comboPop 2s ease forwards; white-space: nowrap; font-style: italic; }
+        @keyframes comboPop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 10% { opacity: 1; transform: translate(-50%, -60%) scale(1.2); } 20% { transform: translate(-50%, -60%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -60%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100%) scale(1); } }
+        
+        .word-popup { position: absolute; left: 50%; top: 65%; transform: translate(-50%, -50%); font-size: 2.8em; font-weight: 900; letter-spacing: 1px; color: #fff; text-transform: uppercase; font-style: italic; pointer-events: none; z-index: 600; animation: wordPop 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; white-space: nowrap; text-shadow: 0 4px 0 rgba(0,0,0,.5); }
+        @keyframes wordPop { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5) rotate(-5deg); } 15% { opacity: 1; transform: translate(-50%, 0px) scale(1.2) rotate(3deg); } 30% { transform: translate(-50%, -15px) scale(1) rotate(0deg); } 80% { opacity: 1; transform: translate(-50%, -15px) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); } }
+
+        /* 4. No Space Left Uyarısı */
+        #no-space-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.6em; font-weight: 900; color: #fff; text-shadow: 0 4px 0 #000, 0 0 25px #ff3366; z-index: 9000; display: none; text-transform: uppercase; white-space: nowrap; animation: popIn 0.3s ease; }
 
         /* Parçacık Patlaması */
         .particle { position: absolute; border-radius: 3px; pointer-events: none; z-index: 400; animation: particleBurst 0.6s ease-out forwards; }
@@ -121,7 +138,9 @@
                     </div>
                 </div>
 
-                <div id="board"></div>
+                <div id="board">
+                    <div id="no-space-screen">NO SPACE LEFT</div>
+                </div>
 
                 <div id="piece-tray">
                     <div class="tray-slot" id="slot-0"></div>
@@ -158,6 +177,7 @@
         let grid = Array(8).fill().map(() => Array(8).fill(0));
         let score = 0;
         let combo = 0;
+        let isGameOverTriggered = false; // Bitiş animasyonunu korumak için eklendi
         let highScore = localStorage.getItem('blockBlastHighScore') || 0;
         document.getElementById('high-score').innerText = highScore;
 
@@ -299,7 +319,7 @@
 
         function startDrag(e) {
             e.preventDefault();
-            if(draggingPiece) return;
+            if(draggingPiece || isGameOverTriggered) return;
             draggingPiece = this;
             const rect = draggingPiece.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -447,6 +467,51 @@
             });
         }
 
+        // --- YENİ EKLENEN YARDIMCI FONKSİYONLAR ---
+        
+        function createLaser(type, index) {
+            const laser = document.createElement('div');
+            // Hücrelerin konumu 8 eşit parça
+            const percent = (index / 8) * 100; 
+            const size = (1 / 8) * 100;
+            
+            if (type === 'row') {
+                laser.className = 'laser-beam laser-row';
+                laser.style.top = `${percent}%`;
+                laser.style.left = '0';
+                laser.style.width = '100%';
+                laser.style.height = `${size}%`;
+            } else {
+                laser.className = 'laser-beam laser-col';
+                laser.style.left = `${percent}%`;
+                laser.style.top = '0';
+                laser.style.height = '100%';
+                laser.style.width = `${size}%`;
+            }
+            
+            document.getElementById('board').appendChild(laser);
+            setTimeout(() => laser.remove(), 500);
+        }
+
+        function spawnFloatingIcon(cellEl) {
+            if(!cellEl) return;
+            const boardEl2 = document.getElementById('board');
+            const boardRect = boardEl2.getBoundingClientRect();
+            const rect = cellEl.getBoundingClientRect();
+            const originX = rect.left - boardRect.left + rect.width / 2;
+            const originY = rect.top - boardRect.top + rect.height / 2;
+            
+            const icon = document.createElement('div');
+            icon.className = 'float-icon';
+            // %15 ihtimalle Thumbs Up (👍), yoksa +1
+            icon.innerText = Math.random() > 0.85 ? '👍' : '+1'; 
+            icon.style.left = originX + 'px';
+            icon.style.top = originY + 'px';
+            
+            boardEl2.appendChild(icon);
+            setTimeout(() => icon.remove(), 900);
+        }
+
         function spawnParticles(cellEl, color) {
             if(!cellEl) return;
             const boardEl2 = document.getElementById('board');
@@ -454,7 +519,7 @@
             const rect = cellEl.getBoundingClientRect();
             const originX = rect.left - boardRect.left + rect.width / 2;
             const originY = rect.top - boardRect.top + rect.height / 2;
-            for(let i = 0; i < 5; i++) {
+            for(let i = 0; i < 4; i++) {
                 const p = document.createElement('div');
                 p.className = 'particle';
                 const size = Math.random() * 6 + 4;
@@ -479,25 +544,26 @@
             el.textContent = '+' + points;
             boardEl2.appendChild(el);
             setTimeout(() => el.remove(), 1000);
+            
+            // KOMBO YAZISI BURADA DAHA BÜYÜK VE UZUN ÇIKIYOR
             if(comboVal > 1) {
                 const c = document.createElement('div');
                 c.className = 'combo-popup';
-                c.textContent = comboVal + 'x KOMBO!';
+                c.textContent = `Combo ${comboVal}`; // Orijinal oyun stilinde
                 boardEl2.appendChild(c);
-                setTimeout(() => c.remove(), 1000);
+                setTimeout(() => c.remove(), 2000);
             }
         }
 
-        // YENİ: Kelime animasyon fonksiyonu
         function showWordPopup(text, color) {
             const boardEl2 = document.getElementById('board');
             const el = document.createElement('div');
             el.className = 'word-popup';
             el.textContent = text;
             el.style.color = color;
-            el.style.textShadow = `0 3px 0 rgba(0,0,0,.4), 0 0 25px ${color}`;
+            el.style.textShadow = `0 4px 0 rgba(0,0,0,.6), 0 0 25px ${color}`;
             boardEl2.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
+            setTimeout(() => el.remove(), 1500);
         }
 
         function checkLines() {
@@ -515,14 +581,26 @@
             
             if(linesCleared > 0) {
                 const cellsToClear = new Set();
-                rowsToClear.forEach(r => { for(let c=0; c<8; c++) cellsToClear.add(r + '_' + c); });
-                colsToClear.forEach(c => { for(let r=0; r<8; r++) cellsToClear.add(r + '_' + c); });
+                
+                // Lazer Efektini tetikle
+                rowsToClear.forEach(r => {
+                    createLaser('row', r);
+                    for(let c=0; c<8; c++) cellsToClear.add(r + '_' + c);
+                });
+                colsToClear.forEach(c => {
+                    createLaser('col', c);
+                    for(let r=0; r<8; r++) cellsToClear.add(r + '_' + c);
+                });
 
                 cellsToClear.forEach(key => {
                     const [r, c] = key.split('_').map(Number);
                     const color = grid[r][c];
                     const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                    
+                    // Görsel şölen: Parçacıklar ve Uçan İkonlar
                     spawnParticles(cellEl, color);
+                    spawnFloatingIcon(cellEl);
+                    
                     grid[r][c] = 0;
                 });
 
@@ -535,7 +613,6 @@
                 showScorePopup(gained, combo);
                 playSound(combo > 1 ? 'combo' : 'clear');
 
-                // YENİ EKLENEN KISIM: Yazıların çıkması
                 if (linesCleared === 2) {
                     setTimeout(() => showWordPopup('GOOD!', '#00ff66'), 150);
                 } else if (linesCleared === 3) {
@@ -551,6 +628,8 @@
         }
 
         function checkGameOver() {
+            if(isGameOverTriggered) return;
+
             let canPlay = false;
             for(let i=0; i<3; i++) {
                 if(trayPieces[i]) {
@@ -564,23 +643,34 @@
             }
 
             if(!canPlay) {
+                isGameOverTriggered = true;
                 playSound('gameover');
-                document.getElementById('game-over-screen').style.display = 'flex';
-                document.getElementById('go-score-val').innerText = score;
-                document.getElementById('go-title').innerText = "Oyun Bitti";
-                if(score > highScore) {
-                    highScore = score;
-                    localStorage.setItem('blockBlastHighScore', highScore);
-                    document.getElementById('high-score').innerText = highScore;
-                    document.getElementById('go-title').innerText = "Yeni Rekor!";
-                }
-                document.getElementById('go-best-val').innerText = highScore;
+                
+                // NO SPACE LEFT yazısını göster
+                const noSpace = document.getElementById('no-space-screen');
+                noSpace.style.display = 'block';
+
+                // 1.5 saniye sonra asıl Oyun Bitti ekranını getir
+                setTimeout(() => {
+                    noSpace.style.display = 'none';
+                    document.getElementById('game-over-screen').style.display = 'flex';
+                    document.getElementById('go-score-val').innerText = score;
+                    document.getElementById('go-title').innerText = "Oyun Bitti";
+                    if(score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('blockBlastHighScore', highScore);
+                        document.getElementById('high-score').innerText = highScore;
+                        document.getElementById('go-title').innerText = "Yeni Rekor!";
+                    }
+                    document.getElementById('go-best-val').innerText = highScore;
+                }, 1500);
             }
         }
 
         function updateScore() { document.getElementById('current-score').innerText = score; }
 
         document.getElementById('btn-restart').onclick = () => {
+            isGameOverTriggered = false;
             document.getElementById('game-over-screen').style.display = 'none';
             grid = Array(8).fill().map(() => Array(8).fill(0));
             score = 0; combo = 0;
