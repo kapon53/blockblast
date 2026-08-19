@@ -81,10 +81,10 @@
         .tray-slot { width: 28%; aspect-ratio: 1/1; height: auto; display: flex; justify-content: center; align-items: center; position: relative; }
 
         /* Şekiller */
-        .piece { display: grid; gap: 3px; cursor: grab; pointer-events: auto; touch-action: none; animation: pieceIn 0.25s ease; }
+        .piece { display: grid; gap: 3px; cursor: grab; pointer-events: auto; touch-action: none; animation: pieceIn 0.25s ease; transition: width 0.15s ease, height 0.15s ease; }
         @keyframes pieceIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         .piece-block { border-radius: 4px; box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.3), 0 2px 2px rgba(70,30,15,.4); }
-        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); will-change: left, top, transform; }
+        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -100%); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); will-change: left, top, transform, width, height; }
 
         /* Lazer ve Yazı Efektleri */
         .laser-beam { position: absolute; background: #fff; box-shadow: 0 0 15px 5px #fff, 0 0 30px 15px #00f3ff; z-index: 300; pointer-events: none; border-radius: 8px; animation: laserFade 0.4s ease-out forwards; }
@@ -326,9 +326,6 @@
             return { r: Number(cell.dataset.r), c: Number(cell.dataset.c) };
         }
 
-        // Parça parmağın üstünde göründüğü için hedef, parçanın görsel
-        // merkezinden bulunur. Böylece parça tahtanın üzerindeyken parmak
-        // tahtanın dışında olsa bile önizleme kaybolmaz.
         function getPlacementOrigin(x, y, shape) {
             const touchedCell = getCellFromPoint(x, y);
             if(!touchedCell) return null;
@@ -346,6 +343,23 @@
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             dragOffsetX = rect.width / 2;
             dragOffsetY = rect.height / 2;
+            
+            // --- GÜNCELLEME: Sürükleme Başlayınca Parçayı Tahtanın Izgara Boyutuna Büyüt ---
+            const boardCell = document.querySelector('.cell'); // Tahtadaki ilk hücreyi referans al
+            if (boardCell) {
+                const cellWidth = boardCell.offsetWidth;
+                const cellHeight = boardCell.offsetHeight;
+                
+                const shapeIndex = draggingPiece.dataset.slot;
+                const shape = trayPieces[shapeIndex];
+                const rows = shape.mat.length;
+                const cols = shape.mat[0].length;
+                
+                // Blokların tahtadaki hücre boyutlarına ulaşması için genişlik ve yüksekliği ayarlıyoruz
+                draggingPiece.style.width = `${cols * (cellWidth + 2)}px`; // 2px gap değeri
+                draggingPiece.style.height = `${rows * (cellHeight + 2)}px`;
+            }
+
             draggingPiece.classList.add('dragging');
             currentPlacement = null;
             document.body.appendChild(draggingPiece); 
@@ -362,8 +376,8 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             draggingPiece.style.left = `${clientX}px`;
-            // Parça parmağın üstünde dursun; böylece bırakılacak hedef görünür kalsın.
-            draggingPiece.style.top = `${clientY - 55}px`;
+            // Parça boyutlandığı için, farenin (veya parmağın) konumu parçanın altından ayarlandı
+            draggingPiece.style.top = `${clientY}px`; 
 
             clearHoverEffects();
             const shapeIndex = draggingPiece.dataset.slot;
@@ -456,6 +470,13 @@
                 draggingPiece.classList.remove('dragging');
                 draggingPiece.style.left = '';
                 draggingPiece.style.top = '';
+                
+                // Geri tepsiye koyarken genişliği tekrar eski haline getiriyoruz
+                const isSmallScreen = window.innerHeight < 750;
+                const blockSize = isSmallScreen ? 18 : 22; 
+                draggingPiece.style.width = `${shape.mat[0].length * blockSize}px`;
+                draggingPiece.style.height = `${shape.mat.length * blockSize}px`;
+
                 document.getElementById(`slot-${shapeIndex}`).appendChild(draggingPiece);
             }
             draggingPiece = null;
