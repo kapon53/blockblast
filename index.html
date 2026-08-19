@@ -9,7 +9,11 @@
     <style>
         /* --- SİTE GENELİ (KAYDIRMA TAMAMEN KAPALI) --- */
         body { 
-            background-color: #050505; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background:
+                radial-gradient(ellipse at 50% -10%, rgba(255,255,255,.22), transparent 42%),
+                repeating-linear-gradient(92deg, rgba(91,46,23,.08) 0 2px, transparent 2px 9px),
+                linear-gradient(135deg, #c69370 0%, #b77d5d 48%, #d1a17d 100%);
+            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             color: #fff; 
             overflow: hidden; /* Aşağı kaydırmayı tamamen yasaklar */
             touch-action: none; /* Ekranda parmak kaydırmalarını durdurur */
@@ -20,20 +24,20 @@
         #game-layer { 
             position: relative; width: 100vw; 
             height: 100svh; /* Mobil tarayıcı barlarına göre tam ekrana oturur */
-            background-color: #050505; display: flex; flex-direction: column; 
+            background: transparent; display: flex; flex-direction: column; 
             align-items: center; user-select: none; -webkit-user-select: none; 
         }
 
         /* --- ÜST MENÜ --- */
         .back-nav { 
-            width: 100%; height: 55px; background: rgba(0,0,0,0.9); padding: 0 15px; 
+            width: 100%; height: 55px; background: rgba(92,50,31,0.72); padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
-            box-sizing: border-box; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            box-sizing: border-box; border-bottom: 2px solid rgba(72,34,19,.35); 
             flex-shrink: 0;
         }
-        .back-btn { background: transparent; color: #fff; text-decoration: none; font-weight: bold; border: 2px solid #333; padding: 6px 12px; border-radius: 6px; font-size: 0.8em; transition: all 0.2s; text-transform: uppercase; white-space: nowrap; }
-        .back-btn:hover { border-color: #00f3ff; color: #00f3ff; box-shadow: 0 0 10px rgba(0,243,255,0.3); }
-        .player-info-nav { color: #aaa; font-size: 0.8em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+        .back-btn { background: rgba(255,255,255,.16); color: #fff8ef; text-decoration: none; font-weight: bold; border: 2px solid rgba(255,255,255,.35); padding: 6px 12px; border-radius: 8px; font-size: 0.8em; transition: all 0.2s; text-transform: uppercase; white-space: nowrap; }
+        .back-btn:hover { border-color: #ffe082; color: #ffe082; box-shadow: 0 0 10px rgba(255,224,130,.35); }
+        .player-info-nav { color: #f0d7c4; font-size: 0.8em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
         #nav-player-name { color: #fff; font-weight: bold; }
 
         /* --- BLOCK BLAST ARAYÜZÜ --- */
@@ -42,15 +46,15 @@
             width: 100%; height: calc(100svh - 55px); /* Menüden kalan tüm alanı kullanır */
             box-sizing: border-box; position: relative; padding-bottom: 15px;
         }
-        h1.game-title { margin: 0; font-size: 2.2em; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-style: italic; text-align: center; background: linear-gradient(180deg, #fff59d 0%, #ffb300 45%, #ff7043 55%, #ff3d68 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 rgba(0,0,0,0.4)); }
-        .game-subtitle { color: #9fb3ff; letter-spacing: 4px; font-size: 0.65em; font-weight: 700; margin: -2px 0 10px; text-transform: uppercase; }
+        h1.game-title { margin: 0; font-size: 2.2em; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-style: italic; text-align: center; background: linear-gradient(180deg, #fff8bf 0%, #ffd34e 45%, #ed8b22 55%, #bd4b1f 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 rgba(74,32,12,.55)); }
+        .game-subtitle { color: #fff0d5; letter-spacing: 4px; font-size: 0.65em; font-weight: 700; margin: -2px 0 10px; text-transform: uppercase; text-shadow: 0 2px 2px rgba(73,35,19,.35); }
         
         /* OYUN KARTI (BOYA GÖRE KÜÇÜLÜR) */
         .game-card { 
-            background: radial-gradient(circle at 50% 0%, #4d67c9 0%, #33459c 55%, #232f75 100%); 
-            border-radius: 24px; padding: 15px; width: 100%; 
+            background: linear-gradient(145deg, #f4c27d 0%, #d88943 48%, #a95229 100%); 
+            border: 4px solid #6e351d; border-radius: 19px; padding: 15px; width: 100%; 
             max-width: min(92vw, 55svh); /* EKRANIN BOYUNA GÖRE DARALIR, TEPSİYİ KORUR */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.55), inset 0 2px 0 rgba(255,255,255,0.08); 
+            box-shadow: 0 14px 0 rgba(82,37,18,.38), 0 24px 45px rgba(73,32,16,.45), inset 0 2px 0 rgba(255,255,255,.35); 
             box-sizing: border-box; position: relative; 
         }
         
@@ -59,16 +63,16 @@
         .score-pill .icon { font-size: 1.5em; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
         .score-pill .score-text { display: flex; flex-direction: column; line-height: 1.1; }
         .score-label { font-size: 0.55em; text-transform: uppercase; letter-spacing: 1px; color: #c7d2ff; font-weight: 700; }
-        #current-score { font-size: 1.3em; font-weight: 900; color: #ffd54f; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-        #high-score { font-size: 1.3em; font-weight: 900; color: #ff6ec7; text-shadow: 0 2px 0 rgba(0,0,0,0.3); }
+        #current-score { font-size: 1.65em; font-weight: 900; color: #fff9e8; text-shadow: 0 3px 0 rgba(113,48,18,.55); }
+        #high-score { font-size: 1.4em; font-weight: 900; color: #fff0a1; text-shadow: 0 3px 0 rgba(113,48,18,.55); }
 
         /* 8x8 Izgara */
-        #board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 3px; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 12px; width: 100%; aspect-ratio: 1 / 1; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); position: relative; overflow: visible; }
-        .cell { background: rgba(255,255,255,0.05); border-radius: 5px; width: 100%; height: 100%; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03); transition: background 0.12s, box-shadow 0.12s; }
-        .cell.filled { box-shadow: inset 0 3px 0 rgba(255,255,255,.4), inset 0 -4px 0 rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.3); }
+        #board { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; background: #5e2e1c; padding: 5px; border: 2px solid rgba(53,24,13,.65); border-radius: 9px; width: 100%; aspect-ratio: 1 / 1; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5), 0 3px 0 rgba(255,220,160,.35); position: relative; overflow: visible; }
+        .cell { background: rgba(255,235,189,0.18); border-radius: 3px; width: 100%; height: 100%; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); transition: background 0.12s, box-shadow 0.12s; }
+        .cell.filled { box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.32), 0 1px 2px rgba(0,0,0,.4); }
         .cell.pop { animation: popIn 0.22s ease; }
         @keyframes popIn { 0% { transform: scale(0.55); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
-        .cell.ghost-valid { box-shadow: inset 0 0 0 2px rgba(255,255,255,0.7); }
+        .cell.ghost-valid { box-shadow: inset 0 0 0 3px rgba(255,255,255,0.95), inset 0 3px 0 rgba(255,255,255,.45), 0 0 8px rgba(255,255,255,.75); filter: brightness(1.15); }
         .cell.ghost-invalid { background: rgba(255,60,60,0.35) !important; animation: shakeCell 0.25s; }
         @keyframes shakeCell { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
@@ -79,8 +83,8 @@
         /* Şekiller */
         .piece { display: grid; gap: 3px; cursor: grab; pointer-events: auto; touch-action: none; animation: pieceIn 0.25s ease; }
         @keyframes pieceIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-        .piece-block { border-radius: 5px; box-shadow: inset 0 3px 0 rgba(255,255,255,.4), inset 0 -4px 0 rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.35); }
-        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); }
+        .piece-block { border-radius: 4px; box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.3), 0 2px 2px rgba(70,30,15,.4); }
+        .piece.dragging { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 12px 16px rgba(0,0,0,.5)); will-change: left, top, transform; }
 
         /* Lazer ve Yazı Efektleri */
         .laser-beam { position: absolute; background: #fff; box-shadow: 0 0 15px 5px #fff, 0 0 30px 15px #00f3ff; z-index: 300; pointer-events: none; border-radius: 8px; animation: laserFade 0.4s ease-out forwards; }
@@ -172,6 +176,7 @@
         let highScore = localStorage.getItem('blockBlastHighScore') || 0;
         document.getElementById('high-score').innerText = highScore;
 
+        const cellMap = Array.from({ length: 8 }, () => Array(8));
         for(let r = 0; r < 8; r++) {
             for(let c = 0; c < 8; c++) {
                 let cell = document.createElement('div');
@@ -179,6 +184,7 @@
                 cell.dataset.r = r;
                 cell.dataset.c = c;
                 boardEl.appendChild(cell);
+                cellMap[r][c] = cell;
             }
         }
 
@@ -233,11 +239,12 @@
         let dragOffsetX = 0;
         let dragOffsetY = 0;
         let currentHoverCells = [];
+        let currentPlacement = null;
 
         function renderBoard() {
             for(let r = 0; r < 8; r++) {
                 for(let c = 0; c < 8; c++) {
-                    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                    const cellEl = cellMap[r][c];
                     if(grid[r][c] !== 0) {
                         cellEl.style.background = gradientFor(grid[r][c]);
                         cellEl.classList.add('filled');
@@ -313,21 +320,22 @@
 
         function getCellFromPoint(x, y) {
             const boardRect = boardEl.getBoundingClientRect();
-            const style = getComputedStyle(boardEl);
-            const padLeft = parseFloat(style.paddingLeft) || 0;
-            const padTop = parseFloat(style.paddingTop) || 0;
-            const padRight = parseFloat(style.paddingRight) || 0;
-            const padBottom = parseFloat(style.paddingBottom) || 0;
-            const innerW = boardRect.width - padLeft - padRight;
-            const innerH = boardRect.height - padTop - padBottom;
-            const cellW = innerW / 8;
-            const cellH = innerH / 8;
-            const relX = x - boardRect.left - padLeft;
-            const relY = y - boardRect.top - padTop;
-            const c = Math.floor(relX / cellW);
-            const r = Math.floor(relY / cellH);
-            if(r < 0 || r > 7 || c < 0 || c > 7) return null;
-            return { r, c };
+            if(x < boardRect.left || x > boardRect.right || y < boardRect.top || y > boardRect.bottom) return null;
+            const cell = document.elementFromPoint(x, y);
+            if(!cell || !cell.classList.contains('cell')) return null;
+            return { r: Number(cell.dataset.r), c: Number(cell.dataset.c) };
+        }
+
+        // Parça parmağın üstünde göründüğü için hedef, parçanın görsel
+        // merkezinden bulunur. Böylece parça tahtanın üzerindeyken parmak
+        // tahtanın dışında olsa bile önizleme kaybolmaz.
+        function getPlacementOrigin(x, y, shape) {
+            const touchedCell = getCellFromPoint(x, y);
+            if(!touchedCell) return null;
+            return {
+                r: touchedCell.r - Math.floor(shape.mat.length / 2),
+                c: touchedCell.c - Math.floor(shape.mat[0].length / 2)
+            };
         }
 
         function startDrag(e) {
@@ -339,6 +347,7 @@
             dragOffsetX = rect.width / 2;
             dragOffsetY = rect.height / 2;
             draggingPiece.classList.add('dragging');
+            currentPlacement = null;
             document.body.appendChild(draggingPiece); 
             moveDrag(e);
             document.addEventListener('mousemove', moveDrag);
@@ -353,17 +362,22 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             draggingPiece.style.left = `${clientX}px`;
+            // Parça parmağın üstünde dursun; böylece bırakılacak hedef görünür kalsın.
             draggingPiece.style.top = `${clientY - 55}px`;
 
             clearHoverEffects();
+            const shapeIndex = draggingPiece.dataset.slot;
+            const shape = trayPieces[shapeIndex];
             const pieceRect = draggingPiece.getBoundingClientRect();
-            const targetCell = getCellFromPoint(pieceRect.left + 5, pieceRect.top + 5);
+            const targetCell = getPlacementOrigin(
+                pieceRect.left + pieceRect.width / 2,
+                pieceRect.top + pieceRect.height / 2,
+                shape
+            );
             
             if(targetCell) {
                 const startR = targetCell.r;
                 const startC = targetCell.c;
-                const shapeIndex = draggingPiece.dataset.slot;
-                const shape = trayPieces[shapeIndex];
 
                 let canPlace = true;
                 let hoverCells = [];
@@ -373,7 +387,8 @@
                         if(shape.mat[r][c] === 1) {
                             let boardR = startR + r;
                             let boardC = startC + c;
-                            let cell = document.querySelector(`.cell[data-r="${boardR}"][data-c="${boardC}"]`);
+                            let cell = boardR >= 0 && boardR < 8 && boardC >= 0 && boardC < 8
+                                ? cellMap[boardR][boardC] : null;
                             if(boardR >= 8 || boardC >= 8 || !cell || grid[boardR][boardC] !== 0) {
                                 canPlace = false;
                             }
@@ -383,6 +398,7 @@
                 }
 
                 currentHoverCells = hoverCells;
+                currentPlacement = canPlace ? { r: startR, c: startC } : null;
                 hoverCells.forEach(cell => {
                     if(canPlace) {
                         cell.classList.add('ghost-valid');
@@ -401,12 +417,18 @@
             document.removeEventListener('mouseup', stopDrag);
             document.removeEventListener('touchend', stopDrag);
 
-            const pieceRect = draggingPiece.getBoundingClientRect();
-            const targetCell = getCellFromPoint(pieceRect.left + 5, pieceRect.top + 5);
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
             
             let placed = false;
             const shapeIndex = draggingPiece.dataset.slot;
             const shape = trayPieces[shapeIndex];
+            const pieceRect = draggingPiece.getBoundingClientRect();
+            const targetCell = currentPlacement || getPlacementOrigin(
+                pieceRect.left + pieceRect.width / 2,
+                pieceRect.top + pieceRect.height / 2,
+                shape
+            );
 
             if(targetCell) {
                 const startR = targetCell.r;
